@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #000000;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 149, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            border: 2px solid #333;
+        }
+
+        h1 {
+            color: #ffd60a;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(255, 214, 10, 0.3);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        #taskInput {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: #000000;
+            color: white;
+        }
+
+        #taskInput:focus {
+            outline: none;
+            border-color: #ff9500;
+        }
+
+        #taskInput::placeholder {
+            color: #555;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add {
+            background: #ff9500;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .btn-add:hover {
+            background: #ffa500;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.4);
+        }
+
+        .btn-update {
+            background: #ffd60a;
+            color: #000000;
+            font-weight: 600;
+            display: none;
+        }
+
+        .btn-update:hover {
+            background: #ffdd33;
+        }
+
+        .btn-cancel {
+            background: #333;
+            color: white;
+            display: none;
+        }
+
+        .btn-cancel:hover {
+            background: #444;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #333;
+            background: #000000;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #111;
+            border-color: #ff9500;
+            color: #ff9500;
+        }
+
+        .filter-btn.active {
+            background: #ffd60a;
+            color: #000000;
+            border-color: #ffd60a;
+            font-weight: 600;
+        }
+
+        #taskList {
+            list-style: none;
+        }
+
+        .task-item {
+            background: #000000;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+            border: 2px solid #333;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-item:hover {
+            background: #111111;
+            transform: translateX(5px);
+            border-color: #ff9500;
+            box-shadow: 0 0 15px rgba(255, 149, 0, 0.2);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 16px;
+            color: white;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #ff9500;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .btn-edit:hover {
+            background: #ffa500;
+        }
+
+        .btn-delete {
+            background: #ffd60a;
+            color: #000000;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover {
+            background: #ffdd33;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: #000000;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 2px solid #333;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd60a;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #ff9500;
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+            color: #ff9500;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .input-section {
+                flex-direction: column;
+            }
+
+            #taskInput {
+                min-width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .task-actions {
+                flex-direction: column;
+            }
+
+            .btn-edit, .btn-delete {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✓ Today's Quest</h1>
+        
+        <div class="input-section">
+            <input type="text" id="taskInput" placeholder="Add a new task...">
+            <button class="btn btn-add" id="addBtn">Add Task</button>
+            <button class="btn btn-update" id="updateBtn">Update</button>
+            <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+
+        <ul id="taskList"></ul>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="totalTasks">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="activeTasks">0</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="completedTasks">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let editingId = null;
+        let currentFilter = 'all';
+
+        const taskInput = document.getElementById('taskInput');
+        const addBtn = document.getElementById('addBtn');
+        const updateBtn = document.getElementById('updateBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const taskList = document.getElementById('taskList');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        function loadTasks() {
+            const stored = JSON.parse(localStorage.getItem('tasks') || '[]');
+            tasks = stored;
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function addTask() {
+            const text = taskInput.value.trim();
+            if (!text) return;
+
+            const task = {
+                id: generateId(),
+                text: text,
+                completed: false,
+                createdAt: Date.now()
+            };
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            taskInput.value = '';
+            taskInput.focus();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function startEdit(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                taskInput.value = task.text;
+                editingId = id;
+                addBtn.style.display = 'none';
+                updateBtn.style.display = 'block';
+                cancelBtn.style.display = 'block';
+                taskInput.focus();
+            }
+        }
+
+        function updateTask() {
+            const text = taskInput.value.trim();
+            if (!text || !editingId) return;
+
+            const task = tasks.find(t => t.id === editingId);
+            if (task) {
+                task.text = text;
+                saveTasks();
+                renderTasks();
+                cancelEdit();
+            }
+        }
+
+        function cancelEdit() {
+            taskInput.value = '';
+            editingId = null;
+            addBtn.style.display = 'block';
+            updateBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            taskInput.focus();
+        }
+
+        function filterTasks(filter) {
+            currentFilter = filter;
+            filterBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const filteredTasks = tasks.filter(task => {
+                if (currentFilter === 'active') return !task.completed;
+                if (currentFilter === 'completed') return task.completed;
+                return true;
+            });
+
+            if (filteredTasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p>No tasks yet. Add one above!</p>
+                    </div>
+                `;
+            } else {
+                taskList.innerHTML = filteredTasks.map(task => `
+                    <li class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+                        <span class="task-text">${task.text}</span>
+                        <div class="task-actions">
+                            <button class="btn-edit" onclick="startEdit('${task.id}')">Edit</button>
+                            <button class="btn-delete" onclick="deleteTask('${task.id}')">Delete</button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const active = total - completed;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('activeTasks').textContent = active;
+            document.getElementById('completedTasks').textContent = completed;
+        }
+
+        addBtn.addEventListener('click', addTask);
+        updateBtn.addEventListener('click', updateTask);
+        cancelBtn.addEventListener('click', cancelEdit);
+
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (editingId) {
+                    updateTask();
+                } else {
+                    addTask();
+                }
+            }
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => filterTasks(btn.dataset.filter));
+        });
+
+        loadTasks();
+    </script>
+</body>
+</html>
